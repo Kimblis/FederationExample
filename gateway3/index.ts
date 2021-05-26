@@ -28,7 +28,6 @@ async function makeGatewaySchema() {
       Subscription: {
         movieRetrieved: {
           resolve: (source, args, context, info) => {
-            console.log(source)
             return { ...source, reviews: source.__reviews__ }
           },
           subscribe: (source, args, context) => {
@@ -52,7 +51,7 @@ waitOn({ resources: ['tcp:3002'] }, async () => {
   const schema = await makeGatewaySchema()
   const server = new ApolloServer({
     schema,
-    context: ({ req }) => ({ authorization: req.headers.authorization }),
+    context: ({ req }) => ({ authorization: req?.headers.authorization }),
   })
   server
     .listen(4000)

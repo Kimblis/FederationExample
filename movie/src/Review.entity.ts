@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-import { Movie } from './movie.entity';
+import type { Movie } from './movie.entity';
 
 @Entity('review')
 export class Review {

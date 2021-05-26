@@ -12,7 +12,10 @@ export class MovieService {
   ) {}
 
   findOneById(movieId: string) {
-    return this.movieRepository.findOne({ id: movieId });
+    return this.movieRepository.findOne({
+      where: { id: movieId },
+      relations: ['reviews'],
+    });
   }
   findAllMovies() {
     return this.movieRepository.find();
