@@ -1,4 +1,4 @@
-import { Directive, Field, ID, Int, ObjectType } from '@nestjs/graphql';
+import { Directive, Field, ID, ObjectType } from '@nestjs/graphql';
 import {
   Column,
   Entity,
@@ -6,13 +6,14 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+
 import { Movie } from './Movie.entity';
 
 @Entity('review')
 @ObjectType()
 @Directive('@key(fields: "id")')
 export class Review {
-  @Field((type) => ID)
+  @Field(() => ID)
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -20,12 +21,12 @@ export class Review {
   @Column()
   content: string;
 
-  @Field((type) => String)
-  @Column()
+  @Field(() => String)
+  @Column({ name: 'movie_id' })
   movieId: string;
 
   @ManyToOne('movie', 'reviews')
-  @JoinColumn({ name: 'movieId' })
-  @Field((type) => Movie)
-  movie?: Movie;
+  @JoinColumn({ name: 'movie_id' })
+  @Field(() => Movie)
+  movie?: Promise<Movie>;
 }

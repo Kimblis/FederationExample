@@ -1,12 +1,13 @@
 import { Directive, Field, ID, ObjectType } from '@nestjs/graphql';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+
 import type { Review } from './Review.entity';
 
 @Entity('movie')
 @ObjectType()
 @Directive('@key(fields: "id")')
 export class Movie {
-  @Field((type) => ID)
+  @Field(() => ID)
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -14,6 +15,9 @@ export class Movie {
   @Column()
   title: string;
 
-  @OneToMany('review', 'movie')
-  reviews?: Review[];
+  @OneToMany('review', 'movie', {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
+  reviews?: Promise<Review[]>;
 }

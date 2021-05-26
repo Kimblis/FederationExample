@@ -21,14 +21,15 @@ async function makeGatewaySchema() {
     type Subscription {
       movieRetrieved: Movie!
       reviewsRetrieved: [Review]!
+      newConversation: Conversation!
     }
     `,
     resolvers: {
       Subscription: {
         movieRetrieved: {
           resolve: (source, args, context, info) => {
-            console.log(context)
-            return source
+            console.log(source)
+            return { ...source, reviews: source.__reviews__ }
           },
           subscribe: (source, args, context) => {
             return pubsub.asyncIterator('MOVIE_RETRIEVED')
@@ -36,7 +37,6 @@ async function makeGatewaySchema() {
         },
         reviewsRetrieved: {
           resolve: (source, args, context) => {
-            console.log(source)
             return source
           },
           subscribe: (source, args, context) => {
@@ -50,7 +50,10 @@ async function makeGatewaySchema() {
 
 waitOn({ resources: ['tcp:3002'] }, async () => {
   const schema = await makeGatewaySchema()
-  const server = new ApolloServer({ schema }) // uses Apollo Server for its subscription UI features
+  const server = new ApolloServer({
+    schema,
+    context: ({ req }) => ({ authorization: req.headers.authorization }),
+  })
   server
     .listen(4000)
     .then(() => console.log(`gateway running at http://localhost:4000/graphql`))

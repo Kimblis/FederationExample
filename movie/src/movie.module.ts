@@ -1,9 +1,10 @@
-import { DataLoaderInterceptor } from 'nestjs-dataloader';
 import { Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { GraphQLFederationModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DataLoaderInterceptor } from 'nestjs-dataloader';
 import { join } from 'path';
+
 import { Movie } from './movie.entity';
 import { MovieResolvers } from './movie.resolver';
 import { MovieService } from './movie.service';

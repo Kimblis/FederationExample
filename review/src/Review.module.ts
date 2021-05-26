@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { GraphQLFederationModule } from '@nestjs/graphql';
+import { join } from 'path';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { DataLoaderInterceptor } from 'nestjs-dataloader';
+
 import { MovieResolvers } from './Movie.resolver';
 import { Movie } from './Movie.entity';
 import { ReviewResolvers } from './Review.resolver';
 import { ReviewService } from './Review.service';
-import { join } from 'path';
-import { ReviewsLoader } from './ReviewsLoader';
-import { APP_INTERCEPTOR } from '@nestjs/core';
-import { DataLoaderInterceptor } from 'nestjs-dataloader';
 import { MovieReviewsLoader } from './MovieReviewsLoader';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import typeOrmOptions from './typeorm';
 import { Review } from './Review.entity';
 
@@ -22,13 +22,13 @@ import { Review } from './Review.entity';
       buildSchemaOptions: {
         orphanedTypes: [Movie],
       },
+      fieldResolverEnhancers: ['interceptors'],
     }),
   ],
   providers: [
     ReviewResolvers,
     ReviewService,
     MovieResolvers,
-    ReviewsLoader,
     MovieReviewsLoader,
     { provide: APP_INTERCEPTOR, useClass: DataLoaderInterceptor },
   ],

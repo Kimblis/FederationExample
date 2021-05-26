@@ -5,11 +5,12 @@ import {
   Resolver,
   ResolveReference,
 } from '@nestjs/graphql';
+
 import { Movie } from './movie.entity';
 import { MovieService } from './movie.service';
 import pubsub from './pubsub';
 
-@Resolver((of) => Movie)
+@Resolver(() => Movie)
 export class MovieResolvers {
   constructor(private movieService: MovieService) {}
 
