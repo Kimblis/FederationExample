@@ -1,18 +1,29 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { In, Repository } from 'typeorm';
 
 import { Review } from './Review.entity';
 
 @Injectable()
 export class ReviewService {
-  private reviews: Review[] = [
-    { id: '555ba', content: 'pajibat', movieId: '555bc' },
-    { id: '555bb', content: 'jibaaaaat', movieId: '555bc' },
-  ];
+  constructor(
+    @InjectRepository(Review)
+    private reviewRepository: Repository<Review>,
+  ) {}
 
-  findByMovieId(movieId: string): Review[] {
-    return this.reviews.filter((review) => review.movieId === movieId);
+  findByMovieId(movieId: string) {
+    return this.reviewRepository.find({ movieId });
   }
-  getAllReviews(): Review[] {
-    return this.reviews;
+  findByMovieIds(movieIds: string[]) {
+    return this.reviewRepository.find({ movieId: In(movieIds) });
+  }
+  getAllReviews() {
+    return this.reviewRepository.find();
+  }
+  getReviewsById(reviewsIds: string[]) {
+    return this.reviewRepository.find({ id: In(reviewsIds) });
+  }
+  createReview(content: string, movieId: string) {
+    return this.reviewRepository.save({ content, movieId });
   }
 }

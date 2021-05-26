@@ -19,4 +19,9 @@ type Movie {
 
 type Query {
   getMovie(id: String!): Movie!
+  getAllMovies: [Movie!]!
+}
+
+type Mutation {
+  createMovie(title: String!): Movie!
 }

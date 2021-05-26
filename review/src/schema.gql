@@ -27,4 +27,9 @@ type Movie {
 type Query {
   getAllReviews: [Review!]!
   getMovieReviews(id: String!): [Review!]!
+  getReviews(ids: [String!]!): [Review!]!
+}
+
+type Mutation {
+  createReview(movieId: String!, content: String!): Review!
 }
