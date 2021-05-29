@@ -1,8 +1,13 @@
+import { ExecutionParams } from '@graphql-tools/delegate'
 import { fetch } from 'cross-fetch'
-import { print } from 'graphql'
+import { ExecutionResult, print } from 'graphql'
 
-export function makeRemoteExecutor(url) {
-  return async ({ document, variables, context }) => {
+export const makeRemoteExecutor = (url: string) => {
+  return async ({
+    document,
+    variables,
+    context,
+  }: ExecutionParams): Promise<ExecutionResult> => {
     const query = print(document)
     const fetchResult = await fetch(url, {
       method: 'POST',

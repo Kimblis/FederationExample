@@ -1,54 +1,41 @@
 import waitOn from 'wait-on'
 import { ApolloServer } from 'apollo-server'
-import { introspectSchema } from '@graphql-tools/wrap'
 import { stitchSchemas } from '@graphql-tools/stitch'
 
-import { makeRemoteExecutor } from './utils/make_remote_executor'
-import pubsub from './pubsub'
+import ConversationSubscriptions from './resolvers/Conversation'
+import getGatewaySchema from './utils/make_gateway_schema'
 
-async function makeGatewaySchema() {
-  const gatewayExec = makeRemoteExecutor('http://localhost:3002/graphql')
-
+async function stitchGatewaySchema(gatewaySchema: any) {
   return stitchSchemas({
-    subschemas: [
-      {
-        schema: await introspectSchema(gatewayExec),
-        executor: gatewayExec,
-        batch: true,
-      },
-    ],
+    // @ts-ignore
+    subschemas: [gatewaySchema],
     typeDefs: `
     type Subscription {
-      movieRetrieved: Movie!
-      reviewsRetrieved: [Review]!
-      newConversation: Conversation!
+    meeting(meetingId: UUID!): Meeting!
+    newMeeting(status: [MeetingCallStatusEnum!]!): Meeting!
+    meetingLeft: Meeting!
+    meetingMessage(meetingId: UUID!): MeetingMessage!
+    conversation(conversationId: UUID!): Conversation!
+    newConversation: Conversation!
+    conversationLeft: Conversation!
+    conversationMessage(conversationId: UUID!): ConversationMessage!
+    waitingListStatus(meetingId: UUID!): WaitingListParticipantStatusPayload!
+    meetingJoinRequest(meetingId: UUID!): MemberUnion!
+    avatarUploadSuccess: User!
+    avatarUploadError: AvatarUploadErrorPayload!
     }
     `,
     resolvers: {
       Subscription: {
-        movieRetrieved: {
-          resolve: (source, args, context, info) => {
-            return { ...source, reviews: source.__reviews__ }
-          },
-          subscribe: (source, args, context) => {
-            return pubsub.asyncIterator('MOVIE_RETRIEVED')
-          },
-        },
-        reviewsRetrieved: {
-          resolve: (source, args, context) => {
-            return source
-          },
-          subscribe: (source, args, context) => {
-            return pubsub.asyncIterator('REVIEWS_RETRIEVED')
-          },
-        },
+        ...ConversationSubscriptions,
       },
     },
   })
 }
 
 waitOn({ resources: ['tcp:3002'] }, async () => {
-  const schema = await makeGatewaySchema()
+  const gatewaySchema = await getGatewaySchema()
+  const schema = await stitchGatewaySchema(gatewaySchema)
   const server = new ApolloServer({
     schema,
     context: ({ req }) => ({ authorization: req?.headers.authorization }),
